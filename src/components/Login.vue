@@ -1,0 +1,111 @@
+<template>
+    <div class='login_container'>
+        <div class="login_box">
+            <div class="avatar_box">
+                <img class="icon" src="../assets/ricky.jpeg" alt="">
+            </div>
+            <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-width="0px" class="login_form">
+                <el-form-item prop="username">
+                  <el-input v-model="loginForm.username" prefix-icon="el-icon-user"></el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" type="password"></el-input>
+                </el-form-item>
+                <el-form-item class='btns'>
+                    <el-button type="primary" @click="login">login</el-button>
+                    <el-button type="info" @click="resetLoginForm">reset</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                loginForm: {
+                    username: 'admin',
+                    password: '123456'
+                },
+                loginFormRules: {
+                    username: [
+                        {required: true, message: "please input the activity", trigger: "blur"},
+                        {min: 5, max: 10, message: "the length from 3 to 5", trigger: "blur"}
+                    ],
+                    password: [
+                        {required: true, message: "please input the password", trigger: "blur"},
+                        {min: 6, max: 15, message: "the length from 6 to 5", trigger: "blur"}
+                    ]
+                }
+
+            }
+
+        },
+        methods: {
+                resetLoginForm() {
+                    this.$refs.loginFormRef.resetFields();
+                },
+                login () {
+                    this.$refs.loginFormRef.validate(async valid=>{
+                        if (!valid) return;
+                        // bring with the data of sheet 
+                        const {data: res} = await this.$http.post('login', this.loginForm);
+                        if (res.meta.status != 200) return this.$message.error('login fail');
+                        this.$message.success('login successfully');
+                        console.log(res)
+                        window.sessionStorage.setItem('token',res.data.token);
+                        this.$router.push("/home");
+                    });
+                }
+        }
+    };
+</script>
+
+<style lang='less' scoped> 
+.login_container {
+    background-color: orange;
+    height: 100%
+}
+
+.login_box {
+    width: 450px;
+    height: 300px;
+    background-color: bisque;
+    border-radius: 2px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform : translate(-50%,-50%);
+
+    .avatar_box {
+        position: absolute;
+        height: 130px;
+        width: 130px;
+        background-color: red;
+        left: 50%;
+        transform : translate(-50%,-50%);
+        padding: 10px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ddd;
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+    }
+    .login_form {
+        position: absolute;
+        bottom: 0;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .btns {
+        display:flex;
+        justify-content: flex-end;
+
+    }
+}
+
+</style>
