@@ -4,6 +4,7 @@
             <div class="avatar_box">
                 <img class="icon" src="../assets/ricky.jpeg" alt="">
             </div>
+            <!-- 用model绑定数据源 -->
             <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-width="0px" class="login_form">
                 <el-form-item prop="username">
                   <el-input v-model="loginForm.username" prefix-icon="el-icon-user"></el-input>
@@ -47,16 +48,21 @@
                     this.$refs.loginFormRef.resetFields();
                 },
                 login () {
-                    this.$refs.loginFormRef.validate(async valid=>{
+                    // 用于验证，如果验证通过就发出请求
+                    this.$refs.loginFormRef.validate(valid => {
+                        // 如果为false，直接返回，不再继续
                         if (!valid) return;
-                        // bring with the data of sheet 
-                        const {data: res} = await this.$http.post('login', this.loginForm);
-                        if (res.meta.status != 200) return this.$message.error('login fail');
-                        this.$message.success('login successfully');
-                        console.log(res)
-                        window.sessionStorage.setItem('token',res.data.token);
-                        this.$router.push("/home");
-                    });
+                        // 这里面的this指向实例
+                        this.$http.post('login',this.loginForm).then(res=>{
+                            // console.log(res.data)
+                            if (res.data.meta.status !== 200) console.log('登录失败')
+                            // console.log('登陆成功')
+                            // 在sessionStorage里面加上token值
+                            window.sessionStorage.setItem("token",res.data.data.token);
+                            // 实现页面跳转
+                            this.$router.push("/home");
+                        })
+                    })
                 }
         }
     };
